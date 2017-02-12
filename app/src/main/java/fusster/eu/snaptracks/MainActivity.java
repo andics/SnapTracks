@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -32,10 +31,8 @@ import fusster.eu.snaptracks.fragments.SnapFragment;
 
 public class MainActivity extends FragmentActivity {
 
-    private AppSectionsPagerAdapter mAppSectionsPagerAdapter;
-
+    public TextureView textureView;
     private ViewPager mViewPager;
-    private TextureView textureView;
     private Size perviewSize;
     private String cameraId;
     private CameraDevice cameraDevice;
@@ -81,6 +78,13 @@ public class MainActivity extends FragmentActivity {
         }
     };
 
+    private Fragment snapFragment, mapFragment, findingsFragment;
+    private Fragment[] fragments = {
+            mapFragment = new MapFragment(),
+            snapFragment = new SnapFragment(),
+            findingsFragment = new FindingsFragment()
+    };
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,22 +95,28 @@ public class MainActivity extends FragmentActivity {
 
         setContentView(R.layout.activity_main);
 
-        mAppSectionsPagerAdapter = new AppSectionsPagerAdapter(getSupportFragmentManager());
-
-        if (findViewById(R.id.textureView) == null) {
-            Log.e("KEF", "ANDROID");
-        }
-
         textureView = (TextureView) findViewById(R.id.textureView);
         mViewPager = (ViewPager) findViewById(R.id.pager);
-        mViewPager.setAdapter(mAppSectionsPagerAdapter);
+        mViewPager.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
+            @Override
+            public Fragment getItem(int position) {
+                return fragments[position];
+            }
+
+            @Override
+            public int getCount() {
+                return 3;
+            }
+        });
 
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        for (Fragment fragment : fragments) fragment.onResume();
 
+        Log.e("2", "2");
         if (textureView == null) {
             Toast.makeText(this, "Obicham si jivota", Toast.LENGTH_SHORT).show();
             return;
@@ -171,28 +181,6 @@ public class MainActivity extends FragmentActivity {
             });
         }
         return mapSizes[0];
-    }
-
-    public class AppSectionsPagerAdapter extends FragmentPagerAdapter {
-
-        final Fragment[] fragments;
-
-        public AppSectionsPagerAdapter(FragmentManager fm) {
-            super(fm);
-            fragments = new Fragment[]{
-                    new MapFragment(), new SnapFragment(), new FindingsFragment()
-            };
-        }
-
-        @Override
-        public Fragment getItem(int i) {
-            return fragments[i];
-        }
-
-        @Override
-        public int getCount() {
-            return fragments.length;
-        }
     }
 
 }
