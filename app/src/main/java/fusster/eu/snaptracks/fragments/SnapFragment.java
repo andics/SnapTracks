@@ -1,9 +1,10 @@
 package fusster.eu.snaptracks.fragments;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -15,14 +16,12 @@ import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
-import fusster.eu.snaptracks.CameraPreviewSurfaceView;
 import fusster.eu.snaptracks.R;
+import fusster.eu.snaptracks.SnapTracks;
+import fusster.eu.snaptracks.views.CameraPreviewSurfaceView;
 
 public class SnapFragment extends Fragment {
     private Camera camera;
@@ -52,11 +51,17 @@ public class SnapFragment extends Fragment {
             return view;
         }
 
+        if (camera == null) {
+            Log.e("NULLcam", "Losho");
+        }
+
         Button captureButton = (Button) view.findViewById(R.id.button_capture);
         captureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                camera.takePicture(null, null, pictureCallback);
+                if (camera != null)
+                    camera.takePicture(null, null, pictureCallback);
+                else previewCameraInView(cameraView);
             }
         });
 
@@ -88,6 +93,11 @@ public class SnapFragment extends Fragment {
     private boolean previewCameraInView(View view) {
         releaseAll();
         camera = Camera.open(backCameraId);
+
+        if (camera == null) {
+            Log.e("CAMERA", "NULL");
+        }
+
         cameraView = view;
         boolean opened = (camera != null);
 
@@ -96,6 +106,8 @@ public class SnapFragment extends Fragment {
             FrameLayout frameLayout = (FrameLayout) view.findViewById(R.id.camera_preview);
             frameLayout.addView(cameraPreviewSurfaceView);
             cameraPreviewSurfaceView.startCameraPreview();
+        } else {
+            Log.e("not", "opened");
         }
 
         return opened;
@@ -118,51 +130,26 @@ public class SnapFragment extends Fragment {
 
             @Override
             public void onPictureTaken(byte[] data, Camera camera) {
+                Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
 
-                File pictureFile = getOutputMediaFile();
-                if (pictureFile == null) {
-                    Toast.makeText(getActivity(), "Image retrieval failed.", Toast.LENGTH_SHORT)
-                            .show();
-                    return;
-                }
+                String fileName = "image_" + System.currentTimeMillis() + ".jpeg";
+
+                File dest = new File(SnapTracks.getAppFolder(), fileName);
 
                 try {
-                    FileOutputStream fos = new FileOutputStream(pictureFile);
-                    fos.write(data);
-                    fos.close();
+                    FileOutputStream outputStream = new FileOutputStream(dest);
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 90, outputStream);
+                    outputStream.flush();
+                    outputStream.close();
 
-                    // Restart the camera preview.
-                    previewCameraInView(cameraView);
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
+                    Toast.makeText(getActivity(), "File saved: " + dest.getPath(), Toast.LENGTH_SHORT).show();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Log.e("IOEXception", "Error saving to sd card");
                 }
+
+                previewCameraInView(cameraView);
             }
         };
-    }
-
-    private File getOutputMediaFile() {
-
-        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), "SnapTracks");
-
-        if (!mediaStorageDir.exists()) {
-            if (!mediaStorageDir.mkdirs()) {
-                Log.d("Camera Guide", "Required media storage does not exist");
-                return null;
-            }
-        }
-
-        // Create a media file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        File mediaFile;
-        mediaFile = new File(mediaStorageDir.getPath() + File.separator +
-                "IMG_" + timeStamp + ".jpg");
-
-        Toast.makeText(getContext(), "Picture saved", Toast.LENGTH_LONG).show();
-
-        return mediaFile;
     }
 
 }
