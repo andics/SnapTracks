@@ -1,14 +1,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="fusster.eu.snaptracks"
-    android:versionCode="1"
-    android:versionName="1.0">
+    package="fusster.eu.snaptracks">
 
-    <uses-sdk
-        android:minSdkVersion="21"
-        android:targetSdkVersion="21" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-feature android:name="android.hardware.camera2.full" />
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
 
     <application
         android:icon="@drawable/ic_launcher"
