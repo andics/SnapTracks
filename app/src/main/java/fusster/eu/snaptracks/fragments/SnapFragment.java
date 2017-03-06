@@ -1,26 +1,24 @@
 package fusster.eu.snaptracks.fragments;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.content.Context;
+import android.content.Intent;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.Toast;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 
 import fusster.eu.snaptracks.R;
 import fusster.eu.snaptracks.SnapTracks;
+import fusster.eu.snaptracks.activities.ImagePreviewActivity;
 import fusster.eu.snaptracks.views.CameraPreviewSurfaceView;
 
 public class SnapFragment extends Fragment {
@@ -28,15 +26,12 @@ public class SnapFragment extends Fragment {
     private CameraPreviewSurfaceView cameraPreviewSurfaceView;
     private View cameraView;
 
-    private Camera.PictureCallback pictureCallback;
-
     int backCameraId = -1;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         backCameraId = getBackCameraId();
-        pictureCallback = getPictureCallback();
     }
 
     @Nullable
@@ -59,9 +54,38 @@ public class SnapFragment extends Fragment {
         captureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (camera != null)
-                    camera.takePicture(null, null, pictureCallback);
-                else previewCameraInView(cameraView);
+                Log.println(Log.ASSERT, "buton", "clicknat");
+                if (camera != null) {
+                    Log.println(Log.ASSERT, "camera", "ne e null");
+                    camera.takePicture(null, null, new Camera.PictureCallback() {
+                        @Override
+                        public void onPictureTaken(byte[] data, Camera camera) {
+                            Log.println(Log.ASSERT, "onPictureTaken", "predi saveImage");
+                            Display display = ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+                            SnapTracks.saveImage(data, display);
+                        }
+                    });
+
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            synchronized (SnapTracks.lock) {
+                                try {
+                                    Log.println(Log.ASSERT, "sync", "chakame");
+                                    SnapTracks.lock.wait();
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+
+                            Intent intent = new Intent(getActivity(), ImagePreviewActivity.class);
+                            startActivity(intent);
+                        }
+                    }).start();
+                } else {
+                    Log.println(Log.ASSERT, "kakvo stava", "tuk ?");
+                    previewCameraInView(cameraView);
+                }
             }
         });
 
@@ -123,33 +147,6 @@ public class SnapFragment extends Fragment {
             cameraPreviewSurfaceView.destroyDrawingCache();
             cameraPreviewSurfaceView.camera = null;
         }
-    }
-
-    private Camera.PictureCallback getPictureCallback() {
-        return new Camera.PictureCallback() {
-
-            @Override
-            public void onPictureTaken(byte[] data, Camera camera) {
-                Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-
-                String fileName = "image_" + System.currentTimeMillis() + ".jpeg";
-
-                File dest = new File(SnapTracks.getAppFolder(), fileName);
-
-                try {
-                    FileOutputStream outputStream = new FileOutputStream(dest);
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 90, outputStream);
-                    outputStream.flush();
-                    outputStream.close();
-
-                    Toast.makeText(getActivity(), "File saved: " + dest.getPath(), Toast.LENGTH_SHORT).show();
-                } catch (IOException e) {
-                    Log.e("IOEXception", "Error saving to sd card");
-                }
-
-                previewCameraInView(cameraView);
-            }
-        };
     }
 
 }
