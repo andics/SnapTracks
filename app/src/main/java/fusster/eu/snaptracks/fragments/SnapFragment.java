@@ -46,21 +46,14 @@ public class SnapFragment extends Fragment {
             return view;
         }
 
-        if (camera == null) {
-            Log.e("NULLcam", "Losho");
-        }
-
         Button captureButton = (Button) view.findViewById(R.id.button_capture);
         captureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.println(Log.ASSERT, "buton", "clicknat");
                 if (camera != null) {
-                    Log.println(Log.ASSERT, "camera", "ne e null");
                     camera.takePicture(null, null, new Camera.PictureCallback() {
                         @Override
                         public void onPictureTaken(byte[] data, Camera camera) {
-                            Log.println(Log.ASSERT, "onPictureTaken", "predi saveImage");
                             Display display = ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
                             SnapTracks.saveImage(data, display);
                         }
@@ -71,13 +64,12 @@ public class SnapFragment extends Fragment {
                         public void run() {
                             synchronized (SnapTracks.lock) {
                                 try {
-                                    Log.println(Log.ASSERT, "sync", "chakame");
                                     SnapTracks.lock.wait();
                                 } catch (InterruptedException e) {
                                     e.printStackTrace();
                                 }
                             }
-
+                            releaseAll();
                             Intent intent = new Intent(getActivity(), ImagePreviewActivity.class);
                             startActivity(intent);
                         }
@@ -106,6 +98,7 @@ public class SnapFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        previewCameraInView(getView());
     }
 
     @Override
@@ -117,10 +110,6 @@ public class SnapFragment extends Fragment {
     private boolean previewCameraInView(View view) {
         releaseAll();
         camera = Camera.open(backCameraId);
-
-        if (camera == null) {
-            Log.e("CAMERA", "NULL");
-        }
 
         cameraView = view;
         boolean opened = (camera != null);

@@ -42,29 +42,17 @@ public class SnapTracks {
     }
 
     public static void saveImage(final byte[] image, final Display display) {
-        Log.println(Log.ASSERT, "sync", "podadeno");
         executorService.execute(new Runnable() {
             @Override
             public void run() {
                 lastImageBitmap = BitmapFactory.decodeByteArray(image, 0, image.length);
 
-                int rotation = 0;
-
-                switch (display.getRotation()) {
-                    case Surface.ROTATION_90:
-                        rotation = 90;
-                        break;
-                    case Surface.ROTATION_180:
-                        rotation = 180;
-                        break;
-                    case Surface.ROTATION_270:
-                        rotation = 270;
-                        break;
+                if (display.getRotation() == Surface.ROTATION_0) {
+                    Matrix matrix = new Matrix();
+                    matrix.postRotate(90);
+                    lastImageBitmap = Bitmap.createBitmap(lastImageBitmap, 0, 0, lastImageBitmap.getWidth(), lastImageBitmap.getHeight(), matrix, true);
                 }
 
-                Matrix matrix = new Matrix();
-                matrix.postRotate(rotation);
-                lastImageBitmap = Bitmap.createBitmap(lastImageBitmap, 0, 0, lastImageBitmap.getWidth(), lastImageBitmap.getHeight(), matrix, true);
 
                 StringBuffer fileName = new StringBuffer("image_"); // Start of file name
 

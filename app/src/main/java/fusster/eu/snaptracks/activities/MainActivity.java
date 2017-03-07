@@ -44,6 +44,8 @@ public class MainActivity extends FragmentActivity {
             }
         });
 
+        mViewPager.setCurrentItem(1);
+
     }
 
 }
