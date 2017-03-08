@@ -71,6 +71,7 @@ public class SnapFragment extends Fragment {
                             }
                             releaseAll();
                             Intent intent = new Intent(getActivity(), ImagePreviewActivity.class);
+                            intent.putExtra(ImagePreviewActivity.SEND_BUTTON, true);
                             startActivity(intent);
                         }
                     }).start();

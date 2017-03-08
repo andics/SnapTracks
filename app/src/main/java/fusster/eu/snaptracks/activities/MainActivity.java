@@ -10,6 +10,7 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import fusster.eu.snaptracks.R;
+import fusster.eu.snaptracks.SnapTracks;
 import fusster.eu.snaptracks.fragments.FindingsFragment;
 import fusster.eu.snaptracks.fragments.MapFragment;
 import fusster.eu.snaptracks.fragments.SnapFragment;
@@ -28,6 +29,8 @@ public class MainActivity extends FragmentActivity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+        SnapTracks.loadImages();
 
         setContentView(R.layout.activity_main);
 
