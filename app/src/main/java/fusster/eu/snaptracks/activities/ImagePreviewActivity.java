@@ -12,20 +12,13 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.URL;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import at.markushi.ui.CircleButton;
 import fusster.eu.snaptracks.R;
 import fusster.eu.snaptracks.SnapTracks;
+import fusster.eu.snaptracks.SnaperinioNetworkinio;
 
 public class ImagePreviewActivity extends Activity implements View.OnClickListener {
 
@@ -101,60 +94,23 @@ public class ImagePreviewActivity extends Activity implements View.OnClickListen
 
     @Override
     public void onClick(View v) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    FileInputStream fileInputStream = new FileInputStream(SnapTracks.getLastImage());
+        SnapTracks.execute(() -> {
+            try {
+                FileInputStream fileInputStream = new FileInputStream(SnapTracks.getLastImage());
 
-                    Socket socket = new Socket(InetAddress.getByName("iordi.csgourge.com"), 25565);
-                    OutputStream outputStream = socket.getOutputStream();
+                byte[] buffer = new byte[1024 * 100];
+                int len;
 
-                    byte[] buffer = new byte[1024 * 100];
-
-                    int len;
-
-                    while ((len = fileInputStream.read(buffer)) != -1) {
-                        outputStream.write(buffer, 0, len);
-                    }
-
-                    socket.close();
-
-                    Timer timer = new Timer();
-
-                    final String orig = new BufferedReader(new InputStreamReader(new URL("http://85.11.165.109:25569/post.php").openStream())).readLine().trim();
-
-                    timer.schedule(new TimerTask() {
-                        String text = "niht good main froind";
-
-                        @Override
-                        public void run() {
-                            try {
-                                URL url = new URL("http://85.11.165.109:25569/post.php");
-                                BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
-
-                                String newText = in.readLine().trim();
-
-                                if (newText.equals(text) && !newText.equals(orig)) {
-                                    Toast.makeText(ImagePreviewActivity.this, "The animal is: " + text, Toast.LENGTH_SHORT).show();
-
-                                    super.cancel();
-                                }
-
-                                text = newText;
-
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }, 0, 2000);
-                } catch (IOException io) {
-                    io.printStackTrace();
+                while ((len = fileInputStream.read(buffer)) != -1) {
+                    SnaperinioNetworkinio.getOut().write(buffer, 0, len);
                 }
-            }
-        }).start();
 
-        Toast.makeText(ImagePreviewActivity.this, "Image sent", Toast.LENGTH_SHORT).show();
+                Toast.makeText(ImagePreviewActivity.this, "Image sent", Toast.LENGTH_SHORT).show();
+            } catch (IOException io) {
+                Toast.makeText(ImagePreviewActivity.this, "Image not sent", Toast.LENGTH_SHORT).show();
+            }
+        });
+
 
         finish();
     }

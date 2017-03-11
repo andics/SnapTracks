@@ -8,14 +8,16 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import fusster.eu.snaptracks.R;
 import fusster.eu.snaptracks.SnapTracks;
+import fusster.eu.snaptracks.SnaperinioNetworkinio;
 import fusster.eu.snaptracks.fragments.FindingsFragment;
 import fusster.eu.snaptracks.fragments.MapFragment;
 import fusster.eu.snaptracks.fragments.SnapFragment;
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends FragmentActivity implements SnaperinioNetworkinio.SnaperinioListener {
 
     private ViewPager mViewPager;
 
@@ -30,7 +32,7 @@ public class MainActivity extends FragmentActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        SnapTracks.loadImages();
+        SnapTracks.init();
 
         setContentView(R.layout.activity_main);
 
@@ -51,4 +53,20 @@ public class MainActivity extends FragmentActivity {
 
     }
 
+    @Override
+    protected void onResume() {
+        SnaperinioNetworkinio.addListener(this);
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        SnaperinioNetworkinio.removeListener(this);
+        super.onPause();
+    }
+
+    @Override
+    public void onEvent(String data) {
+        Toast.makeText(getBaseContext(), "Data from server: " + data, Toast.LENGTH_LONG);
+    }
 }

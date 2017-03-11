@@ -34,7 +34,7 @@ public class SnapTracks {
     private static Bitmap lastImageBitmap = null;
     public static final Object lock = new Object();
 
-    private static boolean imagesLoaded = false;
+    private static boolean imagesLoaded = false, inited = false;
 
     public static BetterMap<Bitmap, File> photos = new BetterMap<>();
 
@@ -42,6 +42,13 @@ public class SnapTracks {
 
     private SnapTracks() {
     } // empty private constructor
+
+    public static void init() {
+        if (inited) return;
+        inited = true;
+        loadImages();
+        SnaperinioNetworkinio.start();
+    }
 
     public static File getAppFolder() {
         if (appFolder != null)
@@ -53,9 +60,7 @@ public class SnapTracks {
     }
 
     public static void saveImage(final byte[] image, final Display display) {
-        executorService.execute(new Runnable() {
-            @Override
-            public void run() {
+        executorService.execute(() -> {
                 lastImageBitmap = BitmapFactory.decodeByteArray(image, 0, image.length);
                 ImagePreviewActivity.imageData = image;
 
@@ -92,7 +97,6 @@ public class SnapTracks {
                     lock.notifyAll();
                 }
 
-            }
         });
     }
 
@@ -130,6 +134,10 @@ public class SnapTracks {
         matrix.postScale(FindingsFragment.WIDTH_RATIO, FindingsFragment.HEIGHT_RATIO);
 
         return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, false);
+    }
+
+    public static void execute(Runnable command) {
+        executorService.execute(command);
     }
 
     public static BetterMap<Bitmap, File> getPhotos() {
