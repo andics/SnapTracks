@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
@@ -15,14 +16,16 @@
         android:id="@+id/innerRelativeLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true">
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true">
 
-        <Button
+        <at.markushi.ui.CircleButton
             android:id="@+id/button_capture"
             android:text="Capture"
-            android:layout_width="fill_parent"
-            android:layout_height="50dp"
-            android:layout_margin="10dp"
-            android:layout_gravity="bottom" />
+            android:layout_width="72dip"
+            android:layout_height="72dip"
+            android:src="@drawable/shutter"
+            app:cb_pressedRingWidth="8dip" />
     </RelativeLayout>
+
 </RelativeLayout>

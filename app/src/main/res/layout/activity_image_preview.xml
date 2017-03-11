@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -12,12 +13,24 @@
 
     </ImageView>
 
-    <Button
+    <at.markushi.ui.CircleButton
         android:id="@+id/send_button"
-        android:layout_width="220px"
-        android:layout_height="110px"
-        android:layout_alignParentBottom="true"
+        android:layout_width="72dip"
+        android:layout_height="72dip"
+        android:src="@drawable/send"
+        app:cb_pressedRingWidth="8dip"
+        android:layout_alignTop="@+id/rotateButton"
         android:layout_alignParentEnd="true"
-        android:text="Send" />
+        android:layout_marginEnd="14dp" />
+
+    <at.markushi.ui.CircleButton
+        android:id="@+id/rotateButton"
+        android:layout_width="72dip"
+        android:layout_height="72dip"
+        android:src="@drawable/rotate"
+        android:layout_marginStart="14dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="8dp" />
 
 </RelativeLayout>

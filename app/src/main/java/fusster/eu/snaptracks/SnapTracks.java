@@ -21,6 +21,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import fusster.eu.snaptracks.activities.ImagePreviewActivity;
 import fusster.eu.snaptracks.fragments.FindingsFragment;
 
 /**
@@ -56,6 +57,7 @@ public class SnapTracks {
             @Override
             public void run() {
                 lastImageBitmap = BitmapFactory.decodeByteArray(image, 0, image.length);
+                ImagePreviewActivity.imageData = image;
 
                 if (display.getRotation() == Surface.ROTATION_0) {
                     Matrix matrix = new Matrix();

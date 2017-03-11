@@ -13,9 +13,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.FrameLayout;
 
+import at.markushi.ui.CircleButton;
 import fusster.eu.snaptracks.R;
 import fusster.eu.snaptracks.SnapTracks;
 import fusster.eu.snaptracks.activities.ImagePreviewActivity;
@@ -46,7 +46,7 @@ public class SnapFragment extends Fragment {
             return view;
         }
 
-        Button captureButton = (Button) view.findViewById(R.id.button_capture);
+        CircleButton captureButton = (CircleButton) view.findViewById(R.id.button_capture);
         captureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
