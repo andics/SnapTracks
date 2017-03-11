@@ -25,6 +25,7 @@
             android:layout_width="72dip"
             android:layout_height="72dip"
             android:src="@drawable/shutter"
+            app:cb_color="@android:color/transparent"
             app:cb_pressedRingWidth="8dip" />
     </RelativeLayout>
 

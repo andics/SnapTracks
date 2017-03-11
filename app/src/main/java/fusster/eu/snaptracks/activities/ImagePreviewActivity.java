@@ -1,6 +1,7 @@
 package fusster.eu.snaptracks.activities;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
@@ -136,8 +137,19 @@ public class ImagePreviewActivity extends Activity implements View.OnClickListen
                                 String newText = in.readLine().trim();
 
                                 if (newText.equals(text) && !newText.equals(orig)) {
-                                    Toast.makeText(ImagePreviewActivity.this, "The animal is: " + text, Toast.LENGTH_SHORT).show();
 
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            new AlertDialog.Builder(ImagePreviewActivity.this)
+                                                    .setTitle("Animal recognized")
+                                                    .setMessage("The animal is: " + text)
+                                                    .setIcon(R.drawable.ic_launcher)
+                                                    .show();
+                                        }
+                                    });
+
+                                    Log.println(Log.ASSERT, "PROMQNA", text);
                                     super.cancel();
                                 }
 
